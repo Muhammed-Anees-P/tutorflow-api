@@ -1,0 +1,968 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/auth/me": {
+      "get": {
+        "operationId": "AuthController_getMe",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get current user",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/users": {
+      "post": {
+        "operationId": "UserController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create user",
+        "tags": [
+          "Users"
+        ]
+      },
+      "get": {
+        "operationId": "UserController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "role",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isActive",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get all users",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/users/{id}": {
+      "get": {
+        "operationId": "UserController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get user by id",
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "operationId": "UserController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update user",
+        "tags": [
+          "Users"
+        ]
+      },
+      "delete": {
+        "operationId": "UserController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Delete user",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/students": {
+      "post": {
+        "operationId": "StudentsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create a student",
+        "tags": [
+          "Students"
+        ]
+      },
+      "get": {
+        "operationId": "StudentsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "search",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "subject",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get all students",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/api/students/dashboard": {
+      "get": {
+        "operationId": "StudentsController_getDashboard",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get student dashboard data",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/api/students/sessions": {
+      "get": {
+        "operationId": "StudentsController_getSessions",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get student sessions",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/api/students/sessions/{id}": {
+      "get": {
+        "operationId": "StudentsController_getSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get a specific session (read-only)",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/api/students/{id}/dashboard": {
+      "get": {
+        "operationId": "StudentsController_getStudentDashboard",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get student dashboard with session timeline",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/api/students/{id}": {
+      "get": {
+        "operationId": "StudentsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get student by id",
+        "tags": [
+          "Students"
+        ]
+      },
+      "patch": {
+        "operationId": "StudentsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStudentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update student",
+        "tags": [
+          "Students"
+        ]
+      },
+      "delete": {
+        "operationId": "StudentsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Delete student",
+        "tags": [
+          "Students"
+        ]
+      }
+    },
+    "/api/sessions": {
+      "post": {
+        "operationId": "SessionsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Create a session",
+        "tags": [
+          "Sessions"
+        ]
+      },
+      "get": {
+        "operationId": "SessionsController_findAll",
+        "parameters": [
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get all sessions",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/sessions/{id}": {
+      "get": {
+        "operationId": "SessionsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get session by id",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/sessions/{id}/notes": {
+      "patch": {
+        "operationId": "SessionsController_updateNotes",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateNotesDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update session notes",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/sessions/{id}/start": {
+      "post": {
+        "operationId": "SessionsController_start",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Start session",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/sessions/{id}/complete": {
+      "post": {
+        "operationId": "SessionsController_complete",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Complete session",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/sessions/{id}/ai-plan": {
+      "post": {
+        "operationId": "SessionsController_generateAiPlan",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Generate AI pre-session plan",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/sessions/{id}/ai-debrief": {
+      "post": {
+        "operationId": "SessionsController_generateAiDebrief",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Generate AI post-session debrief",
+        "tags": [
+          "Sessions"
+        ]
+      }
+    },
+    "/api/progress/students/{id}/progress-summary": {
+      "post": {
+        "operationId": "ProgressController_generateProgressSummary",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "summary": "Generate progress summary for a student",
+        "tags": [
+          "Progress"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "TutorFlow API",
+    "description": "API documentation",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "LoginDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Enter registered username of the user"
+          },
+          "password": {
+            "type": "string",
+            "description": "Enter password of the user"
+          }
+        },
+        "required": [
+          "username",
+          "password"
+        ]
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Unique username",
+            "example": "john_doe"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address",
+            "example": "john@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number",
+            "example": "+1234567890"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "minLength": 6
+          },
+          "role": {
+            "type": "string",
+            "description": "User role",
+            "enum": [
+              "TUTOR",
+              "STUDENT"
+            ],
+            "default": "STUDENT"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Is user active",
+            "default": true
+          }
+        },
+        "required": [
+          "username",
+          "firstName",
+          "password",
+          "role",
+          "isActive"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "username": {
+            "type": "string",
+            "description": "Unique username",
+            "example": "john_doe"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name",
+            "example": "John"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name",
+            "example": "Doe"
+          },
+          "email": {
+            "type": "string",
+            "description": "Email address",
+            "example": "john@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Phone number",
+            "example": "+1234567890"
+          },
+          "password": {
+            "type": "string",
+            "description": "Password",
+            "minLength": 6
+          },
+          "role": {
+            "type": "string",
+            "description": "User role",
+            "enum": [
+              "TUTOR",
+              "STUDENT"
+            ],
+            "default": "STUDENT"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "Is user active",
+            "default": true
+          }
+        }
+      },
+      "CreateStudentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Student name",
+            "example": "Sarah Johnson"
+          },
+          "email": {
+            "type": "string",
+            "description": "Student email",
+            "example": "sarah@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Temporary password",
+            "example": "TempPass123!"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject",
+            "example": "Mathematics"
+          },
+          "currentLevel": {
+            "type": "string",
+            "description": "Current level",
+            "example": "Grade 8"
+          },
+          "learningGoals": {
+            "description": "Learning goals",
+            "example": [
+              "Improve algebra fundamentals"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "weakAreas": {
+            "description": "Weak areas",
+            "example": [
+              "Linear equations"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password",
+          "subject",
+          "currentLevel",
+          "learningGoals",
+          "weakAreas"
+        ]
+      },
+      "UpdateStudentDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Student name",
+            "example": "Sarah Johnson"
+          },
+          "email": {
+            "type": "string",
+            "description": "Student email",
+            "example": "sarah@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "Temporary password",
+            "example": "TempPass123!"
+          },
+          "subject": {
+            "type": "string",
+            "description": "Subject",
+            "example": "Mathematics"
+          },
+          "currentLevel": {
+            "type": "string",
+            "description": "Current level",
+            "example": "Grade 8"
+          },
+          "learningGoals": {
+            "description": "Learning goals",
+            "example": [
+              "Improve algebra fundamentals"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "weakAreas": {
+            "description": "Weak areas",
+            "example": [
+              "Linear equations"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CreateSessionDto": {
+        "type": "object",
+        "properties": {
+          "studentId": {
+            "type": "string",
+            "description": "Student ID",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "description": "Date and time",
+            "example": "2026-09-02T10:00:00Z"
+          },
+          "topic": {
+            "type": "string",
+            "description": "Session topic",
+            "example": "Linear Equations"
+          }
+        },
+        "required": [
+          "studentId",
+          "scheduledAt",
+          "topic"
+        ]
+      },
+      "UpdateNotesDto": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "type": "string",
+            "description": "Session notes content",
+            "example": "Today we covered linear equations..."
+          }
+        }
+      }
+    }
+  }
+}

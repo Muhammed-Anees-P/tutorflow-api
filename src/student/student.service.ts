@@ -467,13 +467,13 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
           currentLevel: student.currentLevel,
         },
         upcoming: upcoming.map((s) => ({
-          id: s._id,
+          _id: s._id,
           topic: s.topic,
           scheduledAt: s.scheduledAt,
           status: s.status,
         })),
         completed: completed.map((s) => ({
-          id: s._id,
+          _id: s._id,
           topic: s.topic,
           scheduledAt: s.scheduledAt,
           status: s.status,
@@ -498,7 +498,7 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
     return {
       success: true,
       data: sessions.map((s) => ({
-        id: s._id,
+        _id: s._id,
         topic: s.topic,
         scheduledAt: s.scheduledAt,
         status: s.status,
@@ -523,7 +523,7 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
     return {
       success: true,
       data: {
-        id: session._id,
+        _id: session._id,
         topic: session.topic,
         scheduledAt: session.scheduledAt,
         status: session.status,
@@ -582,7 +582,7 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
         success: true,
         data: {
           student: {
-            id: student._id,
+            _id: student._id,
             name: student.name,
             subject: student.subject,
             currentLevel: student.currentLevel,
@@ -597,7 +597,7 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
           },
           nextSession: nextSession
             ? {
-                id: nextSession._id,
+                _id: nextSession._id,
                 topic: nextSession.topic,
                 scheduledAt: nextSession.scheduledAt,
                 status: nextSession.status,
@@ -605,14 +605,14 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
             : null,
           latestSession: latestSession
             ? {
-                id: latestSession._id,
+                _id: latestSession._id,
                 topic: latestSession.topic,
                 scheduledAt: latestSession.scheduledAt,
                 status: latestSession.status,
               }
             : null,
           timeline: sessions.map((session) => ({
-            id: session._id,
+            _id: session._id,
             topic: session.topic,
             scheduledAt: session.scheduledAt,
             status: session.status,

@@ -23,6 +23,7 @@ export const seedData = {
   },
 
   student: {
+    username: 'student_one',
     name: 'student_one',
     email: 'student@example.com',
     password: '123456',
@@ -37,6 +38,7 @@ export const seedData = {
   },
 
   student_two: {
+    username: 'student_two',
     name: 'student_two',
     email: 'student2@example.com',
     password: '123456',

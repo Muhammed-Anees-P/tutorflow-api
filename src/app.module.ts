@@ -13,6 +13,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { RolesGuard } from './common/guards/roles.guard';
 import { SeedModule } from './seed/seed.module';
+import { MailModule } from './mail/mail.module';
 @Module({
   imports: [
     MongooseModule.forRoot(mongooseConnectionString),
@@ -23,6 +24,7 @@ import { SeedModule } from './seed/seed.module';
     AiModule,
     ProgressModule,
     SeedModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [

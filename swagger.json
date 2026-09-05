@@ -523,6 +523,38 @@
         "tags": [
           "Sessions"
         ]
+      },
+      "patch": {
+        "operationId": "SessionsController_updateSession",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateSessionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Update session details",
+        "tags": [
+          "Sessions"
+        ]
       }
     },
     "/api/sessions/{id}/notes": {
@@ -952,6 +984,10 @@
           "scheduledAt",
           "topic"
         ]
+      },
+      "UpdateSessionDto": {
+        "type": "object",
+        "properties": {}
       },
       "UpdateNotesDto": {
         "type": "object",

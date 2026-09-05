@@ -10,6 +10,7 @@ import {
   DefaultValuePipe,
   ParseIntPipe,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ParseObjectIdPipe } from '@nestjs/mongoose';
@@ -64,6 +65,16 @@ export class SessionsController {
     @Req() req: AuthedRequest,
   ) {
     return this.service.updateSession(id, dto, req.user.userId);
+  }
+
+  @ApiOperation({ summary: 'Delete session' })
+  @Delete(':id')
+  @Roles(Role.TUTOR)
+  deleteSession(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Req() req: AuthedRequest,
+  ) {
+    return this.service.deleteSession(id, req.user.userId);
   }
 
   @ApiOperation({ summary: 'Update session notes' })

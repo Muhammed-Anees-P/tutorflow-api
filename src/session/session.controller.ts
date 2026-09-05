@@ -20,6 +20,7 @@ import { SessionsService } from './session.service';
 import { Roles } from 'src/common/decorator/role.decorator';
 import { type AuthedRequest } from 'src/common/utils/common.types';
 import { UpdateNotesDto } from './dto/update-notes.dto';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 @ApiTags('Sessions')
 @Controller('sessions')
@@ -42,12 +43,7 @@ export class SessionsController {
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
     @Query('status') status?: string,
   ) {
-    return this.service.findAllSessions(
-      req.user.userId,
-      page,
-      limit,
-      status,
-    );
+    return this.service.findAllSessions(req.user.userId, page, limit, status);
   }
 
   @ApiOperation({ summary: 'Get session by id' })
@@ -58,6 +54,16 @@ export class SessionsController {
     @Req() req: AuthedRequest,
   ) {
     return this.service.findOneSession(id, req.user.userId);
+  }
+  @ApiOperation({ summary: 'Update session details' })
+  @Patch(':id')
+  @Roles(Role.TUTOR)
+  updateSession(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() dto: UpdateSessionDto,
+    @Req() req: AuthedRequest,
+  ) {
+    return this.service.updateSession(id, dto, req.user.userId);
   }
 
   @ApiOperation({ summary: 'Update session notes' })
@@ -74,10 +80,7 @@ export class SessionsController {
   @ApiOperation({ summary: 'Start session' })
   @Post(':id/start')
   @Roles(Role.TUTOR)
-  start(
-    @Param('id', ParseObjectIdPipe) id: string,
-    @Req() req: AuthedRequest,
-  ) {
+  start(@Param('id', ParseObjectIdPipe) id: string, @Req() req: AuthedRequest) {
     return this.service.startSession(id, req.user.userId);
   }
 

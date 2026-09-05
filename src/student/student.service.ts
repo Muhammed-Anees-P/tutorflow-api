@@ -337,33 +337,57 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
     try {
       await this.validateTutor(tutorId);
 
-      const existing = await this.genericFindOne({
-        _id: studentId,
+      const student = await this.model.findOne({
+        _id: new Types.ObjectId(studentId),
         tutorId: new Types.ObjectId(tutorId),
         isDeleted: false,
       });
 
-      if (!existing) {
+      if (!student) {
         throw new NotFoundException('Student not found');
       }
 
-      // Delete student profile
-      const student = await this.genericDeleteOne(studentId);
-
-      // Soft delete user account
-      await this.userModel.findByIdAndUpdate(existing.userId, {
-        isDeleted: true,
-        isActive: false,
+      const activeSession = await this.sessionModel.findOne({
+        studentId: new Types.ObjectId(studentId),
+        tutorId: new Types.ObjectId(tutorId),
+        isDeleted: false,
+        status: {
+          $in: [SessionStatus.SCHEDULED, SessionStatus.IN_PROGRESS],
+        },
       });
+
+      if (activeSession) {
+        if (activeSession.status === SessionStatus.SCHEDULED) {
+          throw new ConflictException(
+            'Student cannot be deleted because they have a scheduled session. Please delete or reschedule the scheduled session first.',
+          );
+        }
+
+        throw new ConflictException(
+          'Student cannot be deleted because they have an in-progress session. Please complete the session first.',
+        );
+      }
+
+      student.isDeleted = true;
+      await student.save();
 
       return {
         success: true,
         message: 'Student deleted successfully',
+        data: null,
       };
     } catch (error: unknown) {
+      if (
+        error instanceof ConflictException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+
       if (error instanceof Error) {
         throw new BadRequestException(error.message);
       }
+
       throw new BadRequestException('Failed to delete student');
     }
   }

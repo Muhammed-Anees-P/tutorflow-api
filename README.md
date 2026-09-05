@@ -1,98 +1,177 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+<div align="center">
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+# 🎓 TutorFlow API
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**The NestJS backend powering TutorFlow — an AI-driven one-to-one tutoring platform.**
 
-## Description
+[![Production API](https://img.shields.io/badge/API-tutorflow--api.railway.app-0B7285?style=flat-square&logo=railway)](https://tutorflow-api-production.up.railway.app/api)
+[![Swagger Docs](https://img.shields.io/badge/Docs-Swagger%20UI-85EA2D?style=flat-square&logo=swagger&logoColor=000)](https://tutorflow-api-production.up.railway.app/docs)
+[![Backend Repo](https://img.shields.io/badge/Repo-Backend%20API-24292e?style=flat-square&logo=github)](https://github.com/Muhammed-Anees-P/tutorflow-api)
+[![Frontend Repo](https://img.shields.io/badge/Repo-Frontend-24292e?style=flat-square&logo=github)](https://github.com/Muhammed-Anees-P/tutorflow-web)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+</div>
 
-## Project setup
+---
 
-```bash
-$ pnpm install
+## 📦 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | NestJS + TypeScript |
+| Database | MongoDB + Mongoose |
+| Auth | JWT + Role-based access control |
+| AI | Google Gemini (multi-key failover) |
+| Email | Nodemailer (SMTP) |
+| Docs | Swagger / OpenAPI |
+| Deployment | Railway |
+
+---
+
+## ✨ Features
+
+- JWT authentication and role-based authorization
+- Tutor/student data isolation
+- Student CRUD operations
+- Session scheduling with pagination and double-booking prevention
+- Session lifecycle validation with enforced state transitions
+- Session notes
+- AI-generated lesson plans, session debriefs, and progress summaries
+- Gemini multi-key failover
+- Session scheduling email notifications
+- Soft deletion
+- Swagger API documentation
+
+---
+
+## 🔄 Session Lifecycle
+
+Sessions move through a strict, one-way state machine:
+
+```
+SCHEDULED → IN_PROGRESS → COMPLETED → AI_REVIEWED
 ```
 
-## Compile and run the project
+- Only **valid transitions** are permitted — no skipping states
+- Only **`SCHEDULED`** sessions can be deleted
 
-```bash
-# development
-$ pnpm run start
+---
 
-# watch mode
-$ pnpm run start:dev
+## 🤖 AI Reliability
 
-# production mode
-$ pnpm run start:prod
+TutorFlow supports **4 Gemini API keys with automatic failover**. If one key hits its limit or fails, the system transparently retries with the next available key.
+
+```env
+GEMINI_API_KEYS=key1,key2,key3,key4
+GEMINI_MODEL=your-gemini-model
 ```
 
-## Run tests
+---
 
-```bash
-# unit tests
-$ pnpm run test
+## 📧 Email Notifications
 
-# e2e tests
-$ pnpm run test:e2e
+When a session is scheduled, the student automatically receives an email with the tutor name, topic, and date/time.
 
-# test coverage
-$ pnpm run test:cov
+> Email failures are logged but do **not** block session creation — the operation succeeds regardless.
+
+```env
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_SECURE=false
+SMTP_USER=your-smtp-user
+SMTP_PASS=your-smtp-password
+MAIL_FROM=TutorFlow <your-email@example.com>
+MAIL_TIMEZONE=Asia/Kolkata
+MAIL_LOCALE=en-IN
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🔐 Test Accounts
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+| Role | Username | Password |
+|---|---|---|
+| Tutor | `tutor_one` | `123456` |
+| Student | `student_one` | `123456` |
+| Tutor | `tutor_two` | `123456` |
+| Student | `student_two` | `123456` |
 
-```bash
-$ pnpm install -g @nestjs/mau
-$ mau deploy
+> The second tutor/student pair can be used to verify data isolation between accounts.
+
+---
+
+## 🚀 Getting Started
+
+### 1. Configure environment
+
+Create a `.env` file in the project root (see [full variable reference](#️-environment-variables) below):
+
+```env
+MONGO_URI=your-mongodb-connection-string
+JWT_SECRET=your-jwt-secret
+GEMINI_API_KEY_1=your-gemini-key
+...
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+> ⚠️ **Never commit `.env` files or secrets to version control.**
 
-## Resources
+### 2. Install dependencies
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+pnpm install
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### 3. Run development server
 
-## Support
+```bash
+pnpm run start:dev
+```
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 4. Build & production
 
-## Stay in touch
+```bash
+# Build
+pnpm build
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+# Start production server
+pnpm start:prod
+```
 
-## License
+---
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+## ⚙️ Environment Variables
+
+| Variable | Description |
+|---|---|
+| `MONGO_URI` | MongoDB connection string |
+| `JWT_SECRET` | Secret key for signing JWTs |
+| `GEMINI_API_KEY_1` – `_4` | Gemini API keys (failover order) |
+| `GEMINI_MODEL` | Gemini model identifier |
+| `SMTP_HOST` | SMTP server hostname |
+| `SMTP_PORT` | SMTP server port (e.g. `587`) |
+| `SMTP_SECURE` | Use TLS — `true` or `false` |
+| `SMTP_USER` | SMTP authentication username |
+| `SMTP_PASS` | SMTP authentication password |
+| `MAIL_FROM` | Sender name and address |
+
+---
+
+## 📚 API Documentation
+
+Interactive Swagger docs are live at:
+**[https://tutorflow-api-production.up.railway.app/docs](https://tutorflow-api-production.up.railway.app/docs)**
+
+Use Swagger UI to explore all endpoints, inspect request/response schemas, and test the API directly in your browser.
+
+---
+
+## 🗺️ Roadmap
+
+Given more time, the next priorities would be:
+
+- [ ] **End-to-end tests** — automated coverage across critical API flows
+- [ ] **Real-time video conferencing** — in-app sessions without leaving TutorFlow
+- [ ] **Notification center** — consolidated alerts for sessions, homework, and updates
+- [ ] **Enhanced AI progress tracking** — detailed learning trend analytics with visual dashboards
+
+---
+

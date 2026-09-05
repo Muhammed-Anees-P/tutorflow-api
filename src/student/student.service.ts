@@ -51,7 +51,7 @@ export class StudentsService extends GenericDatabase<Model<StudentDocument>> {
 
       // Create student user account
       const user = await this.userModel.create({
-        username: dto.email.split('@')[0] + '_' + Date.now(),
+        username: dto.email,
         firstName: dto.name,
         email: dto.email.toLowerCase(),
         password: hashedPassword,

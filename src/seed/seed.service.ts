@@ -1,4 +1,4 @@
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -28,49 +28,48 @@ export class SeedService implements OnModuleInit {
     success: boolean;
     message: string;
     data?: {
-      tutor: UserDocument;
-      student: StudentDocument | null;
+      tutors: UserDocument[];
+      students: StudentDocument[];
       sessions: SessionDocument[];
     };
   }> {
     try {
-      // Check if tutor already exists
-      const existingTutor = await this.userModel.findOne({
-        username: seedData.tutor.username,
-        isDeleted: false,
-      });
+      const tutorOne = await this.createTutor(seedData.tutor);
+      const studentOne = await this.createStudent(
+        seedData.student,
+        tutorOne._id,
+      );
 
-      if (existingTutor) {
-        return {
-          success: true,
-          message: 'Database already seeded',
-          data: {
-            tutor: existingTutor,
-            student: await this.studentModel.findOne({
-              tutorId: existingTutor._id,
-              isDeleted: false,
-            }),
-            sessions: await this.sessionModel.find({
-              tutorId: existingTutor._id,
-              isDeleted: false,
-            }),
-          },
-        };
-      }
+      const tutorTwo = await this.createTutor(seedData.tutor_two);
 
-      const tutor = await this.createTutor();
+      const studentTwo = await this.createStudent(
+        seedData.student_two,
+        tutorTwo._id,
+      );
 
-      const student = await this.createStudent(tutor._id);
+      const tutorOneSessions = seedData.sessions.slice(0, 4);
 
-      const sessions = await this.createSessions(tutor._id, student._id);
+      const tutorTwoSessions = seedData.sessions.slice(4, 8);
+
+      const sessionsOne = await this.createSessions(
+        tutorOne._id,
+        studentOne._id,
+        tutorOneSessions,
+      );
+
+      const sessionsTwo = await this.createSessions(
+        tutorTwo._id,
+        studentTwo._id,
+        tutorTwoSessions,
+      );
 
       return {
         success: true,
         message: 'Database seeded successfully',
         data: {
-          tutor,
-          student,
-          sessions,
+          tutors: [tutorOne, tutorTwo],
+          students: [studentOne, studentTwo],
+          sessions: [...sessionsOne, ...sessionsTwo],
         },
       };
     } catch (error: unknown) {
@@ -85,32 +84,65 @@ export class SeedService implements OnModuleInit {
     }
   }
 
-  private async createTutor(): Promise<UserDocument> {
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(seedData.tutor.password, salt);
+  private async createTutor(
+    tutorData: typeof seedData.tutor | typeof seedData.tutor_two,
+  ): Promise<UserDocument> {
+    const email = tutorData.email.toLowerCase().trim();
 
-    const tutor = new this.userModel({
-      username: seedData.tutor.username,
-      firstName: seedData.tutor.firstName,
-      lastName: seedData.tutor.lastName,
-      email: seedData.tutor.email,
-      password: hashedPassword,
+    let tutor = await this.userModel.findOne({
+      email,
       role: Role.TUTOR,
-      isActive: seedData.tutor.isActive,
       isDeleted: false,
     });
 
-    await tutor.save();
+    if (tutor) {
+      return tutor;
+    }
+
+    tutor = await this.userModel.findOne({
+      username: tutorData.username,
+      role: Role.TUTOR,
+      isDeleted: false,
+    });
+
+    if (tutor) {
+      return tutor;
+    }
+
+    const salt = await bcrypt.genSalt(10);
+
+    const hashedPassword = await bcrypt.hash(tutorData.password, salt);
+
+    tutor = await this.userModel.create({
+      username: tutorData.username,
+
+      firstName: tutorData.firstName,
+
+      lastName: tutorData.lastName,
+
+      email,
+
+      password: hashedPassword,
+
+      role: Role.TUTOR,
+
+      isActive: tutorData.isActive,
+
+      isDeleted: false,
+    });
+
     return tutor;
   }
 
   private async createStudent(
+    studentData: typeof seedData.student | typeof seedData.student_two,
     tutorId: Types.ObjectId,
   ): Promise<StudentDocument> {
-    const studentData = seedData.student;
+    const email = studentData.email.toLowerCase().trim();
 
     let studentUser = await this.userModel.findOne({
-      email: studentData.email,
+      email,
+      role: Role.STUDENT,
       isDeleted: false,
     });
 
@@ -119,10 +151,10 @@ export class SeedService implements OnModuleInit {
       const hashedPassword = await bcrypt.hash(studentData.password, salt);
 
       studentUser = await this.userModel.create({
-        username: studentData.email.split('@')[0] + '_' + Date.now(),
+        username: studentData.username,
         firstName: studentData.name.split(' ')[0],
         lastName: studentData.name.split(' ').slice(1).join(' '),
-        email: studentData.email,
+        email,
         password: hashedPassword,
         role: Role.STUDENT,
         isActive: true,
@@ -131,22 +163,32 @@ export class SeedService implements OnModuleInit {
       });
     }
 
-    // Create student profile
+    // Find existing student profile
     let student = await this.studentModel.findOne({
       userId: studentUser._id,
+      tutorId,
       isDeleted: false,
     });
 
+    // Create student profile
     if (!student) {
       student = await this.studentModel.create({
-        tutorId: tutorId,
+        tutorId,
+
         userId: studentUser._id,
+
         name: studentData.name,
+
         subject: studentData.subject,
+
         currentLevel: studentData.currentLevel,
-        learningGoals: studentData.learningGoals,
-        weakAreas: studentData.weakAreas,
+
+        learningGoals: studentData.learningGoals || [],
+
+        weakAreas: studentData.weakAreas || [],
+
         createdBy: tutorId,
+
         isDeleted: false,
       });
     }
@@ -157,26 +199,37 @@ export class SeedService implements OnModuleInit {
   private async createSessions(
     tutorId: Types.ObjectId,
     studentId: Types.ObjectId,
+    sessionsData: typeof seedData.sessions,
   ): Promise<SessionDocument[]> {
     const createdSessions: SessionDocument[] = [];
 
-    for (const sessionData of seedData.sessions) {
+    for (const sessionData of sessionsData) {
       let session = await this.sessionModel.findOne({
-        tutorId: tutorId,
-        studentId: studentId,
+        tutorId,
+
+        studentId,
+
         topic: sessionData.topic,
+
         isDeleted: false,
       });
 
       if (!session) {
-        const sessionPayload: any = {
-          tutorId: tutorId,
-          studentId: studentId,
+        const sessionPayload: Record<string, any> = {
+          tutorId,
+
+          studentId,
+
           scheduledAt: sessionData.scheduledAt,
+
           topic: sessionData.topic,
+
           status: sessionData.status || SessionStatus.SCHEDULED,
+
           notes: sessionData.notes || '',
+
           createdBy: tutorId,
+
           isDeleted: false,
         };
 

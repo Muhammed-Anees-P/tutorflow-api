@@ -6,6 +6,7 @@ import { StudentSchema, StudentSchemaName } from 'src/model/student.schema';
 import { UserSchema, UserSchemaName } from 'src/model/user.schema';
 import { SessionsController } from './session.controller';
 import { SessionsService } from './session.service';
+import { MailModule } from 'src/mail/mail.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { SessionsService } from './session.service';
       { name: UserSchemaName, schema: UserSchema },
     ]),
     AiModule,
+    MailModule,
   ],
   controllers: [SessionsController],
   providers: [SessionsService],

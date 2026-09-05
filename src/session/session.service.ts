@@ -612,6 +612,46 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
     }
   }
 
+  // ==================== Delete Session ====================
+
+  async deleteSession(sessionId: string, tutorId: string) {
+    try {
+      await this.validateTutor(tutorId);
+
+      const session = await this.validateSessionOwnership(sessionId, tutorId);
+
+      if (session.status !== SessionStatus.SCHEDULED) {
+        throw new ConflictException('Only scheduled sessions can be deleted.');
+      }
+
+      session.isDeleted = true;
+
+      await session.save();
+
+      return {
+        success: true,
+        message: 'Session deleted successfully',
+        data: {
+          _id: session._id,
+        },
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if (
+          error.name === 'ConflictException' ||
+          error.name === 'NotFoundException' ||
+          error.name === 'BadRequestException'
+        ) {
+          throw error;
+        }
+
+        throw new BadRequestException(error.message);
+      }
+
+      throw new BadRequestException('Failed to delete session');
+    }
+  }
+
   // Helper to check for conflicts, excluding the current session
   private async checkForConflictsOnUpdate(
     tutorId: string,

@@ -17,6 +17,7 @@ import { SessionDocument, SessionSchemaName } from 'src/model/session.schema';
 import { StudentDocument, StudentSchemaName } from 'src/model/student.schema';
 import { UserDocument, UserSchemaName } from 'src/model/user.schema';
 import { UpdateSessionDto } from './dto/update-session.dto';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
@@ -30,6 +31,7 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
     @InjectModel(UserSchemaName)
     private readonly userModel: Model<UserDocument>,
     private readonly aiService: AiService,
+    private readonly mailService: MailService,
   ) {
     super(model);
   }
@@ -66,6 +68,43 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
         status: SessionStatus.SCHEDULED,
         createdBy: new Types.ObjectId(tutorId),
       });
+
+      // Email notification must never prevent a successfully scheduled session
+      // from being returned to the tutor.
+      try {
+        const studentUser = await this.userModel.findOne({
+          _id: student.userId,
+          role: Role.STUDENT,
+          isDeleted: false,
+        });
+
+        if (studentUser?.email) {
+          const tutor = await this.userModel.findOne({
+            _id: new Types.ObjectId(tutorId),
+            role: Role.TUTOR,
+            isDeleted: false,
+          });
+
+          await this.mailService.sendSessionScheduledEmail({
+            to: studentUser.email,
+            studentName: student.name,
+            tutorName:
+              [tutor?.firstName, tutor?.lastName].filter(Boolean).join(' ') ||
+              'Your tutor',
+            topic: dto.topic,
+            scheduledAt,
+          });
+        } else {
+          console.warn(
+            `Session ${session._id}: student does not have an email address.`,
+          );
+        }
+      } catch (emailError: unknown) {
+        console.error(
+          `Session ${session._id}: failed to send scheduling email.`,
+          emailError,
+        );
+      }
 
       return {
         success: true,

@@ -16,6 +16,7 @@ import { GenericDatabase } from 'src/helpers/genericDatabase';
 import { SessionDocument, SessionSchemaName } from 'src/model/session.schema';
 import { StudentDocument, StudentSchemaName } from 'src/model/student.schema';
 import { UserDocument, UserSchemaName } from 'src/model/user.schema';
+import { UpdateSessionDto } from './dto/update-session.dto';
 
 @Injectable()
 export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
@@ -45,7 +46,9 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
         isDeleted: false,
       });
       if (!student) {
-        throw new NotFoundException('Student not found or does not belong to you');
+        throw new NotFoundException(
+          'Student not found or does not belong to you',
+        );
       }
 
       const scheduledAt = new Date(dto.scheduledAt);
@@ -81,9 +84,14 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
     }
   }
 
-  private async checkForConflicts(tutorId: string, scheduledAt: Date): Promise<void> {
+  private async checkForConflicts(
+    tutorId: string,
+    scheduledAt: Date,
+  ): Promise<void> {
     const start = new Date(scheduledAt);
-    const end = new Date(start.getTime() + this.SESSION_DURATION_MINUTES * 60 * 1000);
+    const end = new Date(
+      start.getTime() + this.SESSION_DURATION_MINUTES * 60 * 1000,
+    );
 
     const conflict = await this.model.findOne({
       tutorId: new Types.ObjectId(tutorId),
@@ -93,21 +101,39 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
         {
           scheduledAt: { $lt: end },
           $expr: {
-            $gt: [{ $add: ['$scheduledAt', this.SESSION_DURATION_MINUTES * 60 * 1000] }, start],
+            $gt: [
+              {
+                $add: [
+                  '$scheduledAt',
+                  this.SESSION_DURATION_MINUTES * 60 * 1000,
+                ],
+              },
+              start,
+            ],
           },
         },
       ],
     });
 
     if (conflict) {
-      throw new ConflictException('Tutor already has a session scheduled during this time.');
+      throw new ConflictException(
+        'Tutor already has a session scheduled during this time.',
+      );
     }
   }
 
-  async findAllSessions(tutorId: string, page: number, limit: number, status?: string) {
+  async findAllSessions(
+    tutorId: string,
+    page: number,
+    limit: number,
+    status?: string,
+  ) {
     try {
       await this.validateTutor(tutorId);
-      const match: any = { tutorId: new Types.ObjectId(tutorId), isDeleted: false };
+      const match: any = {
+        tutorId: new Types.ObjectId(tutorId),
+        isDeleted: false,
+      };
       if (status) match.status = status;
 
       const skip = (page - 1) * limit;
@@ -282,7 +308,9 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
       const session = await this.validateSessionOwnership(sessionId, tutorId);
 
       if (session.status !== SessionStatus.IN_PROGRESS) {
-        throw new ConflictException('Notes can only be edited when session is IN_PROGRESS.');
+        throw new ConflictException(
+          'Notes can only be edited when session is IN_PROGRESS.',
+        );
       }
 
       session.notes = notes || '';
@@ -311,8 +339,13 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
       await this.validateTutor(tutorId);
       const session = await this.validateSessionOwnership(sessionId, tutorId);
 
-      if (session.status === SessionStatus.COMPLETED || session.status === SessionStatus.AI_REVIEWED) {
-        throw new ConflictException('AI plan cannot be generated for completed sessions.');
+      if (
+        session.status === SessionStatus.COMPLETED ||
+        session.status === SessionStatus.AI_REVIEWED
+      ) {
+        throw new ConflictException(
+          'AI plan cannot be generated for completed sessions.',
+        );
       }
 
       const student = await this.studentModel.findOne({
@@ -324,14 +357,15 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
         throw new NotFoundException('Student not found');
       }
 
-      const pastSessions = await this.model.find({
-        studentId: session.studentId,
-        status: { $in: [SessionStatus.COMPLETED, SessionStatus.AI_REVIEWED] },
-        isDeleted: false,
-      })
-      .sort({ scheduledAt: -1 })
-      .limit(5)
-      .lean();
+      const pastSessions = await this.model
+        .find({
+          studentId: session.studentId,
+          status: { $in: [SessionStatus.COMPLETED, SessionStatus.AI_REVIEWED] },
+          isDeleted: false,
+        })
+        .sort({ scheduledAt: -1 })
+        .limit(5)
+        .lean();
 
       const aiPlan = await this.aiService.generateSessionPlan({
         student: {
@@ -342,7 +376,7 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
           weakAreas: student.weakAreas,
         },
         topic: session.topic,
-        pastSessions: pastSessions.map(s => ({
+        pastSessions: pastSessions.map((s) => ({
           topic: s.topic,
           notes: s.notes,
           aiDebrief: s.aiDebrief,
@@ -362,7 +396,9 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
       if (error instanceof Error) {
         throw new BadRequestException(error.message);
       }
-      throw new ServiceUnavailableException('AI service is temporarily unavailable. Please try again.');
+      throw new ServiceUnavailableException(
+        'AI service is temporarily unavailable. Please try again.',
+      );
     }
   }
 
@@ -374,7 +410,9 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
       const session = await this.validateSessionOwnership(sessionId, tutorId);
 
       if (session.status !== SessionStatus.COMPLETED) {
-        throw new ConflictException('AI debrief can only be generated for COMPLETED sessions.');
+        throw new ConflictException(
+          'AI debrief can only be generated for COMPLETED sessions.',
+        );
       }
 
       const student = await this.studentModel.findOne({
@@ -386,15 +424,16 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
         throw new NotFoundException('Student not found');
       }
 
-      const pastSessions = await this.model.find({
-        studentId: session.studentId,
-        status: SessionStatus.AI_REVIEWED,
-        isDeleted: false,
-        _id: { $ne: sessionId },
-      })
-      .sort({ scheduledAt: -1 })
-      .limit(5)
-      .lean();
+      const pastSessions = await this.model
+        .find({
+          studentId: session.studentId,
+          status: SessionStatus.AI_REVIEWED,
+          isDeleted: false,
+          _id: { $ne: sessionId },
+        })
+        .sort({ scheduledAt: -1 })
+        .limit(5)
+        .lean();
 
       const aiDebrief = await this.aiService.generateDebrief({
         student: {
@@ -406,7 +445,7 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
         },
         topic: session.topic,
         notes: session.notes,
-        pastSessions: pastSessions.map(s => ({
+        pastSessions: pastSessions.map((s) => ({
           topic: s.topic,
           aiDebrief: s.aiDebrief,
           scheduledAt: s.scheduledAt,
@@ -428,7 +467,9 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
       if (error instanceof Error) {
         throw new BadRequestException(error.message);
       }
-      throw new ServiceUnavailableException('AI service is temporarily unavailable. Please try again.');
+      throw new ServiceUnavailableException(
+        'AI service is temporarily unavailable. Please try again.',
+      );
     }
   }
 
@@ -447,7 +488,10 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
     return tutor;
   }
 
-  async validateSessionOwnership(sessionId: string, tutorId: string): Promise<SessionDocument> {
+  async validateSessionOwnership(
+    sessionId: string,
+    tutorId: string,
+  ): Promise<SessionDocument> {
     const session = await this.genericFindOne({
       _id: sessionId,
       tutorId: new Types.ObjectId(tutorId),
@@ -459,22 +503,153 @@ export class SessionsService extends GenericDatabase<Model<SessionDocument>> {
     return session;
   }
 
-  async getSessionsForStudent(studentId: string, tutorId: string): Promise<SessionDocument[]> {
-    return this.model.find({
-      studentId: new Types.ObjectId(studentId),
-      tutorId: new Types.ObjectId(tutorId),
-      isDeleted: false,
-    })
-    .sort({ scheduledAt: -1 })
-    .lean();
+  async getSessionsForStudent(
+    studentId: string,
+    tutorId: string,
+  ): Promise<SessionDocument[]> {
+    return this.model
+      .find({
+        studentId: new Types.ObjectId(studentId),
+        tutorId: new Types.ObjectId(tutorId),
+        isDeleted: false,
+      })
+      .sort({ scheduledAt: -1 })
+      .lean();
   }
 
   async getStudentSessions(studentId: string): Promise<SessionDocument[]> {
-    return this.model.find({
-      studentId: new Types.ObjectId(studentId),
+    return this.model
+      .find({
+        studentId: new Types.ObjectId(studentId),
+        isDeleted: false,
+      })
+      .sort({ scheduledAt: -1 })
+      .lean();
+  }
+
+  async updateSession(
+    sessionId: string,
+    dto: UpdateSessionDto,
+    tutorId: string,
+  ) {
+    try {
+      await this.validateTutor(tutorId);
+      const session = await this.validateSessionOwnership(sessionId, tutorId);
+
+      if (
+        session.status === SessionStatus.COMPLETED ||
+        session.status === SessionStatus.AI_REVIEWED
+      ) {
+        throw new ConflictException(
+          'Completed sessions are read-only and cannot be updated.',
+        );
+      }
+
+      if (dto.studentId && dto.studentId !== session.studentId.toString()) {
+        const newStudent = await this.studentModel.findOne({
+          _id: dto.studentId,
+          tutorId: new Types.ObjectId(tutorId),
+          isDeleted: false,
+        });
+        if (!newStudent) {
+          throw new NotFoundException(
+            'Student not found or does not belong to you',
+          );
+        }
+        session.studentId = new Types.ObjectId(dto.studentId);
+      }
+
+      if (dto.scheduledAt) {
+        // Cannot change time if session is already IN_PROGRESS
+        if (session.status === SessionStatus.IN_PROGRESS) {
+          throw new ConflictException(
+            'Cannot change the time of an in-progress session. Only the topic can be updated.',
+          );
+        }
+
+        const newDate = new Date(dto.scheduledAt);
+        if (isNaN(newDate.getTime())) {
+          throw new BadRequestException('Invalid date');
+        }
+
+        // Cannot schedule in the past
+        if (newDate < new Date()) {
+          throw new BadRequestException(
+            'Cannot schedule a session in the past.',
+          );
+        }
+
+        // Check for conflicts (excluding current session)
+        await this.checkForConflictsOnUpdate(tutorId, newDate, sessionId);
+
+        session.scheduledAt = newDate;
+      }
+
+      // 4. Update Topic
+      if (dto.topic) {
+        session.topic = dto.topic;
+      }
+
+      await session.save();
+
+      return {
+        success: true,
+        message: 'Session updated successfully',
+        data: session,
+      };
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        if (
+          error.name === 'ConflictException' ||
+          error.name === 'NotFoundException' ||
+          error.name === 'BadRequestException'
+        ) {
+          throw error;
+        }
+        throw new BadRequestException(error.message);
+      }
+      throw new BadRequestException('Failed to update session');
+    }
+  }
+
+  // Helper to check for conflicts, excluding the current session
+  private async checkForConflictsOnUpdate(
+    tutorId: string,
+    scheduledAt: Date,
+    excludeSessionId: string,
+  ): Promise<void> {
+    const start = new Date(scheduledAt);
+    const end = new Date(
+      start.getTime() + this.SESSION_DURATION_MINUTES * 60 * 1000,
+    );
+
+    const conflict = await this.model.findOne({
+      tutorId: new Types.ObjectId(tutorId),
       isDeleted: false,
-    })
-    .sort({ scheduledAt: -1 })
-    .lean();
+      status: { $ne: SessionStatus.AI_REVIEWED },
+      _id: { $ne: new Types.ObjectId(excludeSessionId) },
+      $or: [
+        {
+          scheduledAt: { $lt: end },
+          $expr: {
+            $gt: [
+              {
+                $add: [
+                  '$scheduledAt',
+                  this.SESSION_DURATION_MINUTES * 60 * 1000,
+                ],
+              },
+              start,
+            ],
+          },
+        },
+      ],
+    });
+
+    if (conflict) {
+      throw new ConflictException(
+        'Tutor already has a session scheduled during this time.',
+      );
+    }
   }
 }

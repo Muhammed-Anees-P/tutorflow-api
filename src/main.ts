@@ -1,5 +1,5 @@
-// import dns from 'dns';
-// dns.setServers(['8.8.8.8', '8.8.4.4']);
+import dns from 'dns';
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';

@@ -83,57 +83,187 @@ export class MailService implements OnModuleInit {
       <html>
         <head>
           <meta charset="UTF-8" />
-          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
           <title>Session Scheduled</title>
         </head>
-        <body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
-          <div style="max-width:600px;margin:40px auto;padding:0 16px;">
-            <div style="background:#ffffff;border:1px solid #e5e7eb;border-radius:14px;overflow:hidden;">
-              <div style="background:#6366f1;padding:28px 32px;">
-                <h1 style="margin:0;color:#ffffff;font-size:24px;">
-                  TutorFlow
-                </h1>
-                <p style="margin:8px 0 0;color:#e0e7ff;font-size:14px;">
+
+        <body
+          style="
+            margin:0;
+            padding:0;
+            background:#f5f7fb;
+            font-family:Arial,Helvetica,sans-serif;
+            color:#1f2937;
+          "
+        >
+          <div
+            style="
+              max-width:600px;
+              margin:40px auto;
+              padding:0 16px;
+            "
+          >
+            <div
+              style="
+                background:#ffffff;
+                border:1px solid #e5e7eb;
+                border-radius:14px;
+                overflow:hidden;
+              "
+            >
+
+              <!-- Header -->
+              <div
+                style="
+                  background:#6366f1;
+                  padding:28px 32px;
+                  text-align:center;
+                "
+              >
+                <img
+                  src="https://res.cloudinary.com/dol2v8wcf/image/upload/v1788593705/logo_gsetlu.png"
+                  alt="TutorFlow"
+                  width="180"
+                  style="
+                    display:block;
+                    width:180px;
+                    max-width:100%;
+                    height:auto;
+                    margin:0 auto;
+                    border:0;
+                    outline:none;
+                    text-decoration:none;
+                  "
+                />
+
+                <p
+                  style="
+                    margin:12px 0 0;
+                    color:#e0e7ff;
+                    font-size:14px;
+                    line-height:1.5;
+                  "
+                >
                   Session scheduled
                 </p>
               </div>
 
+              <!-- Content -->
               <div style="padding:32px;">
-                <p style="margin:0 0 16px;font-size:16px;">
+
+                <p
+                  style="
+                    margin:0 0 16px;
+                    font-size:16px;
+                    line-height:1.5;
+                  "
+                >
                   Hi ${this.escapeHtml(options.studentName)},
                 </p>
 
-                <p style="margin:0 0 24px;line-height:1.6;color:#4b5563;">
+                <p
+                  style="
+                    margin:0 0 24px;
+                    line-height:1.6;
+                    color:#4b5563;
+                    font-size:15px;
+                  "
+                >
                   Your tutoring session has been successfully scheduled.
                   Here are the session details:
                 </p>
 
-                <div style="background:#f8fafc;border:1px solid #e5e7eb;border-radius:10px;padding:20px;">
-                  <p style="margin:0 0 12px;">
+                <!-- Session Details -->
+                <div
+                  style="
+                    background:#f8fafc;
+                    border:1px solid #e5e7eb;
+                    border-radius:10px;
+                    padding:20px;
+                  "
+                >
+                  <p
+                    style="
+                      margin:0 0 12px;
+                      font-size:15px;
+                      line-height:1.5;
+                    "
+                  >
                     <strong>Topic:</strong>
                     ${this.escapeHtml(options.topic)}
                   </p>
 
-                  <p style="margin:0 0 12px;">
+                  <p
+                    style="
+                      margin:0 0 12px;
+                      font-size:15px;
+                      line-height:1.5;
+                    "
+                  >
                     <strong>Tutor:</strong>
                     ${this.escapeHtml(options.tutorName)}
                   </p>
 
-                  <p style="margin:0;">
+                  <p
+                    style="
+                      margin:0;
+                      font-size:15px;
+                      line-height:1.5;
+                    "
+                  >
                     <strong>Date &amp; time:</strong>
                     ${this.escapeHtml(scheduledDate)}
                   </p>
                 </div>
 
-                <p style="margin:24px 0 0;line-height:1.6;color:#4b5563;">
+                <p
+                  style="
+                    margin:24px 0 0;
+                    line-height:1.6;
+                    color:#4b5563;
+                    font-size:15px;
+                  "
+                >
                   Please be ready at the scheduled time.
                 </p>
 
-                <p style="margin:24px 0 0;">
+                <p
+                  style="
+                    margin:24px 0 0;
+                    font-size:15px;
+                    line-height:1.6;
+                  "
+                >
                   Regards,<br />
                   <strong>TutorFlow</strong>
                 </p>
+
               </div>
+
+              <!-- Footer -->
+              <div
+                style="
+                  padding:18px 32px;
+                  background:#f8fafc;
+                  border-top:1px solid #e5e7eb;
+                  text-align:center;
+                "
+              >
+                <p
+                  style="
+                    margin:0;
+                    color:#9ca3af;
+                    font-size:12px;
+                    line-height:1.5;
+                  "
+                >
+                  This is an automated email from TutorFlow.
+                </p>
+              </div>
+
             </div>
           </div>
         </body>

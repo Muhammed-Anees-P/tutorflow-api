@@ -21,7 +21,7 @@
 | Database | MongoDB + Mongoose |
 | Auth | JWT + Role-based access control |
 | AI | Google Gemini (multi-key failover) |
-| Email | Nodemailer (SMTP) |
+| Email | Resend  |
 | Docs | Swagger / OpenAPI |
 | Deployment | Railway |
 
@@ -73,13 +73,13 @@ When a session is scheduled, the student automatically receives an email with th
 
 > Email failures are logged but do **not** block session creation — the operation succeeds regardless.
 
+Note: Email notifications are implemented using the Resend free tier. The free testing sender (onboarding@resend.dev) can only send emails to the email address associated with the Resend account. To send emails to other recipients, a verified custom domain is required.
+
 ```env
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_SECURE=false
-SMTP_USER=your-smtp-user
-SMTP_PASS=your-smtp-password
-MAIL_FROM=TutorFlow <your-email@example.com>
+RESEND_API_KEY=your-resend-api-key
+
+MAIL_FROM=TutorFlow <onboarding@resend.dev>
+
 MAIL_TIMEZONE=Asia/Kolkata
 MAIL_LOCALE=en-IN
 ```

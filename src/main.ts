@@ -1,5 +1,5 @@
-import dns from 'dns';
-dns.setServers(['8.8.8.8', '8.8.4.4']);
+// import dns from 'dns';
+// dns.setServers(['8.8.8.8', '8.8.4.4']);
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
@@ -41,8 +41,8 @@ async function bootstrap() {
   app.useGlobalGuards(new JwtAuthGuard(reflector), new RolesGuard(reflector));
 
   app.enableCors({
-    // origin: ['http://localhost:3000'],
-    origin: true,
+    origin: ['https://tutorflow-web.vercel.app', 'http://localhost:3000'],
+    // origin: true,
     credentials: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type, Authorization',

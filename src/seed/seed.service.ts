@@ -21,7 +21,7 @@ export class SeedService implements OnModuleInit {
   ) {}
 
   async onModuleInit() {
-    await this.seed();
+    // await this.seed();
   }
 
   async seed(): Promise<{

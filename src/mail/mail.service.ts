@@ -1,6 +1,5 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import * as nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Injectable, Logger } from '@nestjs/common';
+import { Resend } from 'resend';
 
 export interface SendSessionScheduledEmailOptions {
   to: string;
@@ -11,53 +10,24 @@ export interface SendSessionScheduledEmailOptions {
 }
 
 @Injectable()
-export class MailService implements OnModuleInit {
+export class MailService {
   private readonly logger = new Logger(MailService.name);
-  private readonly transporter: Transporter;
+  private readonly resend: Resend;
 
   constructor() {
-    const host = process.env.SMTP_HOST;
-    const port = Number(process.env.SMTP_PORT || 587);
-    const secure = process.env.SMTP_SECURE === 'true';
-    const user = process.env.SMTP_USER;
-    const pass = process.env.SMTP_PASS;
+    const apiKey = process.env.RESEND_API_KEY;
 
-    if (!host || !user || !pass) {
-      throw new Error(
-        'SMTP configuration is missing. Required: SMTP_HOST, SMTP_USER, SMTP_PASS.',
-      );
+    if (!apiKey) {
+      throw new Error('RESEND_API_KEY is missing.');
     }
 
-    this.transporter = nodemailer.createTransport({
-      host,
-      port,
-      secure,
-      auth: {
-        user,
-        pass,
-      },
-    });
-  }
-
-  async onModuleInit(): Promise<void> {
-    try {
-      await this.transporter.verify();
-      this.logger.log('SMTP connection verified successfully.');
-    } catch (error) {
-      this.logger.error(
-        'SMTP connection verification failed. Emails may not be sent.',
-        error instanceof Error ? error.stack : String(error),
-      );
-    }
+    this.resend = new Resend(apiKey);
   }
 
   async sendSessionScheduledEmail(
     options: SendSessionScheduledEmailOptions,
   ): Promise<void> {
-    const from =
-      process.env.MAIL_FROM ||
-      process.env.SMTP_USER ||
-      'TutorFlow <no-reply@tutorflow.local>';
+    const from = process.env.MAIL_FROM || 'TutorFlow <onboarding@resend.dev>';
 
     const scheduledDate = this.formatDate(options.scheduledAt);
 
@@ -270,17 +240,30 @@ export class MailService implements OnModuleInit {
       </html>
     `;
 
-    await this.transporter.sendMail({
-      from,
-      to: options.to,
-      subject,
-      text,
-      html,
-    });
+    try {
+      const { data, error } = await this.resend.emails.send({
+        from,
+        to: [options.to],
+        subject,
+        text,
+        html,
+      });
 
-    this.logger.log(
-      `Session scheduled email sent to ${options.to} for "${options.topic}".`,
-    );
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      this.logger.log(
+        `Session scheduled email sent to ${options.to}. Resend ID: ${data?.id ?? 'unknown'}`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to send session scheduled email to ${options.to}.`,
+        error instanceof Error ? error.message : String(error),
+      );
+
+      throw error;
+    }
   }
 
   private formatDate(date: Date): string {
